@@ -1,0 +1,27 @@
+name: Benchmark
+
+on: push
+
+jobs:
+  test:
+    name: Run Benchmark
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v1.2.1
+      with:
+        version: 5.17.1
+        run_install: true
+    - name: Build
+      run: pnpm run build
+    - name: Run benchmark
+      run: pnpm start
+    - name: Commit result
+      run: |
+        git config user.email g-plane@hotmail.com
+        git config user.name 'Pig Fang'
+        git add result.md
+        git commit -m 'generate new benchmark result'
+        git push origin main
