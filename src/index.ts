@@ -58,7 +58,7 @@ const table = new Table({
 })
 
 const libs = Object.keys(testMap) as Array<keyof typeof testMap>
-const results = libs.map((lib) => {
+const results: [string, ...number[]][] = libs.map((lib) => {
   const result = Array.from({ length: 100 }).map(() =>
     preprocessResult(testMap[lib]())
   )
@@ -83,10 +83,24 @@ const results = libs.map((lib) => {
 table.push(...results)
 console.log(table.toString())
 
-ejs.renderFile('./template.md', { results }, async (error, rendered) => {
-  if (error) {
-    throw error
-  }
+ejs.renderFile(
+  './template.md',
+  {
+    results: results.map((item) => {
+      if (item[0] === 'nodejs') {
+        return item
+      }
 
-  await fs.promises.writeFile('./result.md', rendered)
-})
+      const [name] = item
+      item[0] = `[${name}](https://www.npmjs.com/package/${name})`
+      return item
+    }),
+  },
+  async (error, rendered) => {
+    if (error) {
+      throw error
+    }
+
+    await fs.promises.writeFile('./result.md', rendered)
+  }
+)
